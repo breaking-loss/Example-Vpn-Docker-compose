@@ -1,0 +1,38 @@
+gluetun:
+    image: qmcgaw/gluetun:v3.28.1
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+      - 8085:8085
+    volumes:
+      - <redacted>:/gluetun
+    environment:
+      - OPENVPN_USER=xxxxx
+      - OPENVPN_PASSWORD=xxxxx
+      - VPNSP=private internet access
+      - TZ=Europe/London
+      - PIA_ENCRYPTION=strong
+      - REGION=UK London
+      - PROTOCOL=tcp
+      - OPENVPN_MSSFIX=1460
+    restart: always
+
+qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    environment:
+      - PUID=1000
+      - PGID=1001
+      - TZ=Europe/London
+      - WEBUI_PORT=8085
+    volumes:
+      - <redacted>:/config
+      - <redacted>:/downloads
+    depends_on:
+      - gluetun
+    restart: always
